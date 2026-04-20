@@ -1,0 +1,45 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { supabase } from '@/lib/supabase';
+import { generateSummary } from '@/lib/anthropic';
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const { id } = params;
+
+  const { data: article, error: fetchError } = await supabase
+    .from('articles')
+    .select('id, title, description, summary')
+    .eq('id', id)
+    .single();
+
+  if (fetchError || !article) {
+    return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+  }
+
+  if (article.summary) {
+    return NextResponse.json({ summary: article.summary });
+  }
+
+  try {
+    const summary = await generateSummary(article.title, article.description);
+
+    const { error: updateError } = await supabase
+      .from('articles')
+      .update({
+        summary,
+        summary_generated_at: new Date().toISOString(),
+      })
+      .eq('id', id);
+
+    if (updateError) {
+      return NextResponse.json({ error: updateError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ summary });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to generate summary';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
