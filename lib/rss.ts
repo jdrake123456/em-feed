@@ -23,7 +23,7 @@ export async function fetchFeed(source: Source): Promise<ParsedItem[]> {
       url: item.link ?? item.guid ?? '',
       description: stripHtml(item.contentSnippet ?? item.content ?? item.summary ?? null),
       published_at: item.pubDate ?? item.isoDate ?? null,
-    })).filter((item) => item.url \!== '')
+    })).filter((item) => item.url !== '')
   } catch (err) {
     console.error(`Failed to fetch feed for ${source.name} (${source.url}):`, err)
     return []
@@ -31,7 +31,7 @@ export async function fetchFeed(source: Source): Promise<ParsedItem[]> {
 }
 
 function stripHtml(html: string | null): string | null {
-  if (\!html) return null
+  if (!html) return null
   return html
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')

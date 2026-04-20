@@ -25,7 +25,7 @@ export default function AddSourceModal({ onClose, onAdded }: AddSourceModalProps
   }, [onClose])
 
   async function handleAdd() {
-    if (\!name.trim() || \!url.trim()) return
+    if (!name.trim() || !url.trim()) return
     setLoading(true)
     try {
       const res = await fetch('/api/sources', {
@@ -122,7 +122,7 @@ export default function AddSourceModal({ onClose, onAdded }: AddSourceModalProps
           </button>
           <button
             onClick={handleAdd}
-            disabled={loading || \!name.trim() || \!url.trim()}
+            disabled={loading || !name.trim() || !url.trim()}
             className="flex-1 px-3 py-2.5 rounded-md text-sm font-medium disabled:opacity-50 transition-colors"
             style={{ backgroundColor: '#4f8ef7', color: '#fff' }}
           >

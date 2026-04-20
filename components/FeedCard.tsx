@@ -35,7 +35,7 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
   }
 
   function formatDate(dateStr: string | null) {
-    if (\!dateStr) return ''
+    if (!dateStr) return ''
     try {
       return new Date(dateStr).toLocaleDateString('en-US', {
         month: 'short',
@@ -60,15 +60,15 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
         style={{
           backgroundColor: '#1a1d27',
           border: '1px solid #2a2d3a',
-          borderLeft: \!localArticle.is_read ? '3px solid #4f8ef7' : '1px solid #2a2d3a',
+          borderLeft: !localArticle.is_read ? '3px solid #4f8ef7' : '1px solid #2a2d3a',
         }}
       >
         {/* Card header — clickable to expand */}
         <div
           className="p-4 cursor-pointer"
           onClick={() => {
-            setExpanded((v) => \!v)
-            if (\!localArticle.is_read) patch({ is_read: true })
+            setExpanded((v) => !v)
+            if (!localArticle.is_read) patch({ is_read: true })
           }}
         >
           <div className="flex items-start justify-between gap-3 mb-1.5">
@@ -93,7 +93,7 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
             {localArticle.title}
           </h3>
 
-          {\!expanded && localArticle.description && (
+          {!expanded && localArticle.description && (
             <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
               {localArticle.description}
             </p>
@@ -145,7 +145,7 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
         >
           {/* Save */}
           <button
-            onClick={() => patch({ is_saved: \!localArticle.is_saved })}
+            onClick={() => patch({ is_saved: !localArticle.is_saved })}
             title={localArticle.is_saved ? 'Unsave' : 'Save'}
             className="p-1.5 rounded transition-colors hover:bg-white/5"
             style={{ color: localArticle.is_saved ? '#4f8ef7' : '#6b7280' }}
@@ -157,7 +157,7 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
 
           {/* Archive */}
           <button
-            onClick={() => patch({ is_archived: \!localArticle.is_archived })}
+            onClick={() => patch({ is_archived: !localArticle.is_archived })}
             title={localArticle.is_archived ? 'Unarchive' : 'Archive'}
             className="p-1.5 rounded transition-colors hover:bg-white/5"
             style={{ color: localArticle.is_archived ? '#f97316' : '#6b7280' }}

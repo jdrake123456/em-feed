@@ -26,7 +26,7 @@ export default function AddURLModal({ onClose, onAdded }: AddURLModalProps) {
   }, [onClose])
 
   async function handleAdd() {
-    if (\!url.trim()) return
+    if (!url.trim()) return
     setLoading(true)
     try {
       const res = await fetch('/api/articles', {
@@ -100,7 +100,7 @@ export default function AddURLModal({ onClose, onAdded }: AddURLModalProps) {
           </button>
           <button
             onClick={handleAdd}
-            disabled={loading || \!url.trim()}
+            disabled={loading || !url.trim()}
             className="flex-1 px-3 py-2.5 rounded-md text-sm font-medium disabled:opacity-50 transition-colors"
             style={{ backgroundColor: '#4f8ef7', color: '#fff' }}
           >

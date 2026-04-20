@@ -35,7 +35,7 @@ export default function TagModal({ article, allTags, onClose, onUpdate }: TagMod
       })
       if (res.ok) {
         const updated = hasTag
-          ? articleTags.filter((t) => t.id \!== tag.id)
+          ? articleTags.filter((t) => t.id !== tag.id)
           : [...articleTags, tag]
         setArticleTags(updated)
         onUpdate(updated)
@@ -46,7 +46,7 @@ export default function TagModal({ article, allTags, onClose, onUpdate }: TagMod
   }
 
   async function createTag() {
-    if (\!newTagName.trim()) return
+    if (!newTagName.trim()) return
     setCreating(true)
     try {
       const res = await fetch('/api/tags', {
@@ -125,7 +125,7 @@ export default function TagModal({ article, allTags, onClose, onUpdate }: TagMod
           />
           <button
             onClick={createTag}
-            disabled={creating || \!newTagName.trim()}
+            disabled={creating || !newTagName.trim()}
             className="px-3 py-2 rounded-md text-sm font-medium disabled:opacity-50 transition-colors"
             style={{ backgroundColor: '#4f8ef7', color: '#fff' }}
           >

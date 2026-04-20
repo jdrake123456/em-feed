@@ -18,10 +18,10 @@ export default function SourceList({ sources, onUpdate, onDelete }: SourceListPr
       const res = await fetch(`/api/sources/${source.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: \!source.is_active }),
+        body: JSON.stringify({ is_active: !source.is_active }),
       })
       if (res.ok) {
-        onUpdate(source.id, { is_active: \!source.is_active })
+        onUpdate(source.id, { is_active: !source.is_active })
       }
     } catch {
       toast.error('Update failed')
@@ -29,7 +29,7 @@ export default function SourceList({ sources, onUpdate, onDelete }: SourceListPr
   }
 
   async function deleteSource(id: string) {
-    if (\!confirm('Remove this source? Articles already fetched will remain.')) return
+    if (!confirm('Remove this source? Articles already fetched will remain.')) return
     setDeleting(id)
     try {
       const res = await fetch(`/api/sources/${id}`, { method: 'DELETE' })
@@ -45,7 +45,7 @@ export default function SourceList({ sources, onUpdate, onDelete }: SourceListPr
   }
 
   function formatDate(dateStr: string | null) {
-    if (\!dateStr) return 'Never'
+    if (!dateStr) return 'Never'
     try {
       return new Date(dateStr).toLocaleDateString('en-US', {
         month: 'short', day: 'numeric', year: 'numeric',

@@ -27,7 +27,7 @@ export default function HomePage() {
       params.set('archived', 'false');
 
       const res = await fetch(`/api/articles?${params.toString()}`);
-      if (\!res.ok) throw new Error('Failed to fetch articles');
+      if (!res.ok) throw new Error('Failed to fetch articles');
       const data = await res.json();
       setArticles(data.articles || []);
     } catch {
@@ -40,7 +40,7 @@ export default function HomePage() {
   const fetchTags = useCallback(async () => {
     try {
       const res = await fetch('/api/tags');
-      if (\!res.ok) return;
+      if (!res.ok) return;
       const data = await res.json();
       setTags(data.tags || []);
     } catch {
@@ -51,7 +51,7 @@ export default function HomePage() {
   const fetchSources = useCallback(async () => {
     try {
       const res = await fetch('/api/sources');
-      if (\!res.ok) return;
+      if (!res.ok) return;
       const data = await res.json();
       setSources(data.sources || []);
     } catch {
@@ -75,7 +75,7 @@ export default function HomePage() {
   }, []);
 
   const handleArticleRemove = useCallback((id: string) => {
-    setArticles(prev => prev.filter(a => a.id \!== id));
+    setArticles(prev => prev.filter(a => a.id !== id));
   }, []);
 
   const handleAddArticle = useCallback((article: Article) => {

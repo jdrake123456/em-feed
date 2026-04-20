@@ -21,6 +21,6 @@ export async function generateSummary(title: string, description: string | null)
   })
 
   const block = message.content[0]
-  if (block.type \!== 'text') throw new Error('Unexpected response type from Anthropic')
+  if (block.type !== 'text') throw new Error('Unexpected response type from Anthropic')
   return block.text
 }
