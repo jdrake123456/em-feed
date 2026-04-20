@@ -8,11 +8,13 @@ import toast from 'react-hot-toast'
 
 interface FeedCardProps {
   article: Article
-  allTags: Tag[]
-  onUpdate: (updated: Partial<Article> & { id: string }) => void
+  tags: Tag[]
+  onUpdate: (updated: Article) => void
+  onRemove: (id: string) => void
+  onTagsChange: () => void
 }
 
-export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) {
+export default function FeedCard({ article, tags, onUpdate, onRemove, onTagsChange }: FeedCardProps) {
   const [expanded, setExpanded] = useState(false)
   const [showTagModal, setShowTagModal] = useState(false)
   const [localArticle, setLocalArticle] = useState(article)
@@ -25,9 +27,10 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
         body: JSON.stringify(fields),
       })
       if (res.ok) {
-        const updated = { ...localArticle, ...fields }
+        const updated = { ...localArticle, ...fields } as Article
         setLocalArticle(updated)
-        onUpdate({ id: localArticle.id, ...fields })
+        onUpdate(updated)
+        if (fields.is_archived) onRemove(localArticle.id)
       }
     } catch {
       toast.error('Update failed')
@@ -63,7 +66,6 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
           borderLeft: !localArticle.is_read ? '3px solid #4f8ef7' : '1px solid #2a2d3a',
         }}
       >
-        {/* Card header — clickable to expand */}
         <div
           className="p-4 cursor-pointer"
           onClick={() => {
@@ -99,7 +101,6 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
             </p>
           )}
 
-          {/* Tags */}
           {localArticle.tags && localArticle.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-2">
               {localArticle.tags.map((tag) => (
@@ -119,7 +120,6 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
           )}
         </div>
 
-        {/* Expanded content */}
         {expanded && (
           <div className="px-4 pb-2">
             {localArticle.description && (
@@ -130,20 +130,18 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
             <SummaryPanel
               article={localArticle}
               onSummaryGenerated={(summary) => {
-                const updated = { ...localArticle, summary, summary_generated_at: new Date().toISOString() }
+                const updated = { ...localArticle, summary, summary_generated_at: new Date().toISOString() } as Article
                 setLocalArticle(updated)
-                onUpdate({ id: localArticle.id, summary })
+                onUpdate(updated)
               }}
             />
           </div>
         )}
 
-        {/* Action bar */}
         <div
           className="flex items-center gap-1 px-4 py-2"
           style={{ borderTop: '1px solid #2a2d3a' }}
         >
-          {/* Save */}
           <button
             onClick={() => patch({ is_saved: !localArticle.is_saved })}
             title={localArticle.is_saved ? 'Unsave' : 'Save'}
@@ -155,7 +153,6 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
             </svg>
           </button>
 
-          {/* Archive */}
           <button
             onClick={() => patch({ is_archived: !localArticle.is_archived })}
             title={localArticle.is_archived ? 'Unarchive' : 'Archive'}
@@ -167,7 +164,6 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
             </svg>
           </button>
 
-          {/* Tags */}
           <button
             onClick={() => setShowTagModal(true)}
             title="Add tags"
@@ -179,7 +175,6 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
             </svg>
           </button>
 
-          {/* Open link */}
           <a
             href={localArticle.url}
             target="_blank"
@@ -198,12 +193,13 @@ export default function FeedCard({ article, allTags, onUpdate }: FeedCardProps) 
       {showTagModal && (
         <TagModal
           article={localArticle}
-          allTags={allTags}
+          allTags={tags}
           onClose={() => setShowTagModal(false)}
-          onUpdate={(tags) => {
-            const updated = { ...localArticle, tags }
+          onUpdate={(updatedTags) => {
+            const updated = { ...localArticle, tags: updatedTags } as Article
             setLocalArticle(updated)
-            onUpdate({ id: localArticle.id, tags })
+            onUpdate(updated)
+            onTagsChange()
           }}
         />
       )}
