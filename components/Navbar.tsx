@@ -1,13 +1,19 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 
 export default function Navbar() {
   const pathname = usePathname()
+  const router = useRouter()
   const [refreshing, setRefreshing] = useState(false)
+
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    router.push('/login')
+  }
 
   async function handleRefresh() {
     setRefreshing(true)
@@ -74,6 +80,13 @@ export default function Navbar() {
             />
           </svg>
           {refreshing ? 'Refreshing...' : 'Refresh'}
+        </button>
+        <button
+          onClick={handleLogout}
+          className="px-3 py-1.5 rounded-md text-sm text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+          title="Sign out"
+        >
+          Sign out
         </button>
       </div>
     </nav>
