@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { generateSummary } from '@/lib/anthropic';
+import { fetchArticleText } from '@/lib/scraper';
 
 export async function POST(
   request: NextRequest,
@@ -10,7 +11,7 @@ export async function POST(
 
   const { data: article, error: fetchError } = await supabase
     .from('articles')
-    .select('id, title, description, summary')
+    .select('id, title, url, description, summary')
     .eq('id', id)
     .single();
 
@@ -23,7 +24,8 @@ export async function POST(
   }
 
   try {
-    const summary = await generateSummary(article.title, article.description);
+    const fullText = await fetchArticleText(article.url);
+    const summary = await generateSummary(article.title, fullText ?? article.description);
 
     const { error: updateError } = await supabase
       .from('articles')
