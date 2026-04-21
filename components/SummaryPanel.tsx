@@ -12,14 +12,15 @@ interface SummaryPanelProps {
 export default function SummaryPanel({ article, onSummaryGenerated }: SummaryPanelProps) {
   const [loading, setLoading] = useState(false)
 
-  async function generateSummary() {
+  async function generate(force = false) {
     setLoading(true)
     try {
-      const res = await fetch(`/api/articles/${article.id}/summarize`, { method: 'POST' })
+      const url = `/api/articles/${article.id}/summarize${force ? '?force=true' : ''}`
+      const res = await fetch(url, { method: 'POST' })
       const data = await res.json()
       if (res.ok) {
         onSummaryGenerated(data.summary)
-        toast.success('Summary generated')
+        toast.success(force ? 'Summary regenerated' : 'Summary generated')
       } else {
         toast.error(data.error ?? 'Failed to generate summary')
       }
@@ -37,16 +38,27 @@ export default function SummaryPanel({ article, onSummaryGenerated }: SummaryPan
         style={{ backgroundColor: '#111420', border: '1px solid #2a2d3a' }}
       >
         {article.summary.split('\n').map((line, i) => {
-          const isHeader = /^(Background|Methods|Results|Limitations):/.test(line)
+          const isHeader = /^(Background|Key Points|Clinical Takeaway|Methods|Results|Limitations):/.test(line)
           return line.trim() ? (
             <p key={i} className={isHeader ? 'font-semibold text-gray-200' : 'text-gray-400'}>
               {line}
             </p>
           ) : null
         })}
-        <p className="text-xs text-gray-600 pt-1">
-          Generated {article.summary_generated_at ? new Date(article.summary_generated_at).toLocaleDateString() : ''}
-        </p>
+        <div className="flex items-center justify-between pt-1">
+          <p className="text-xs text-gray-600">
+            Generated {article.summary_generated_at
+              ? new Date(article.summary_generated_at).toLocaleDateString()
+              : ''}
+          </p>
+          <button
+            onClick={() => generate(true)}
+            disabled={loading}
+            className="text-xs text-gray-600 hover:text-gray-400 transition-colors disabled:opacity-50"
+          >
+            {loading ? 'Regenerating...' : '↺ Regenerate'}
+          </button>
+        </div>
       </div>
     )
   }
@@ -54,7 +66,7 @@ export default function SummaryPanel({ article, onSummaryGenerated }: SummaryPan
   return (
     <div className="mt-3">
       <button
-        onClick={generateSummary}
+        onClick={() => generate(false)}
         disabled={loading}
         className="text-sm px-3 py-1.5 rounded-md transition-colors disabled:opacity-50"
         style={{

@@ -19,7 +19,9 @@ export async function POST(
     return NextResponse.json({ error: 'Article not found' }, { status: 404 });
   }
 
-  if (article.summary) {
+  const force = new URL(request.url).searchParams.get('force') === 'true';
+
+  if (article.summary && !force) {
     return NextResponse.json({ summary: article.summary });
   }
 
