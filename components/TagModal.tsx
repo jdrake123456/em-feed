@@ -28,10 +28,13 @@ export default function TagModal({ article, allTags, onClose, onUpdate }: TagMod
   async function toggleTag(tag: Tag) {
     const hasTag = articleTags.some((t) => t.id === tag.id)
     try {
-      const res = await fetch(`/api/articles/${article.id}/tags`, {
+      const url = hasTag
+        ? `/api/articles/${article.id}/tags?tag_id=${tag.id}`
+        : `/api/articles/${article.id}/tags`
+      const res = await fetch(url, {
         method: hasTag ? 'DELETE' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tagId: tag.id }),
+        ...(hasTag ? {} : { body: JSON.stringify({ tag_id: tag.id }) }),
       })
       if (res.ok) {
         const updated = hasTag
