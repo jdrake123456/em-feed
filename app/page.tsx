@@ -1,140 +1,169 @@
-'use client';
+'use client'
 
-import { useEffect, useState, useCallback } from 'react';
-import { Article, ArticleFilters, Source, Tag } from '@/types';
-import FeedCard from '@/components/FeedCard';
-import FeedFiltersBar from '@/components/FeedFilters';
-import AddURLModal from '@/components/AddURLModal';
-import toast from 'react-hot-toast';
+import { useEffect, useState, useCallback, useRef } from 'react'
+import { Article, Tag } from '@/types'
+import SwipeCard from '@/components/SwipeCard'
+import AddURLModal from '@/components/AddURLModal'
+import toast from 'react-hot-toast'
+import Link from 'next/link'
 
 export default function HomePage() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [sources, setSources] = useState<Source[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<ArticleFilters>({});
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [articles, setArticles] = useState<Article[]>([])
+  const [tags, setTags] = useState<Tag[]>([])
+  const [loading, setLoading] = useState(true)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [exitDir, setExitDir] = useState<'left' | 'right' | 'down' | null>(null)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const acting = useRef(false)
 
   const fetchArticles = useCallback(async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const params = new URLSearchParams();
-      if (filters.source) params.set('source', filters.source);
-      if (filters.tag) params.set('tag', filters.tag);
-      if (filters.type) params.set('type', filters.type);
-      if (filters.saved) params.set('saved', 'true');
-      if (filters.search) params.set('q', filters.search);
-      params.set('archived', 'false');
-
-      const res = await fetch(`/api/articles?${params.toString()}`);
-      if (!res.ok) throw new Error('Failed to fetch articles');
-      const data = await res.json();
-      setArticles(data.articles || []);
+      const res = await fetch('/api/articles?archived=false')
+      if (!res.ok) throw new Error('Failed to fetch')
+      const data = await res.json()
+      setArticles(data.articles || [])
+      setCurrentIndex(0)
     } catch {
-      toast.error('Failed to load articles');
+      toast.error('Failed to load articles')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [filters]);
+  }, [])
 
   const fetchTags = useCallback(async () => {
     try {
-      const res = await fetch('/api/tags');
-      if (!res.ok) return;
-      const data = await res.json();
-      setTags(data.tags || []);
-    } catch {
-      // silent
-    }
-  }, []);
-
-  const fetchSources = useCallback(async () => {
-    try {
-      const res = await fetch('/api/sources');
-      if (!res.ok) return;
-      const data = await res.json();
-      setSources(data.sources || []);
-    } catch {
-      // silent
-    }
-  }, []);
+      const res = await fetch('/api/tags')
+      if (!res.ok) return
+      const data = await res.json()
+      setTags(data.tags || [])
+    } catch { /* silent */ }
+  }, [])
 
   useEffect(() => {
-    fetchArticles();
-  }, [fetchArticles]);
+    fetchArticles()
+    fetchTags()
+  }, [fetchArticles, fetchTags])
 
-  useEffect(() => {
-    fetchTags();
-    fetchSources();
-  }, [fetchTags, fetchSources]);
+  function animate(dir: 'left' | 'right' | 'down', callback: () => void) {
+    if (acting.current) return
+    acting.current = true
+    setExitDir(dir)
+    setTimeout(() => {
+      setExitDir(null)
+      setCurrentIndex(i => i + 1)
+      acting.current = false
+      callback()
+    }, 280)
+  }
 
-  const handleArticleUpdate = useCallback((updated: Article) => {
-    setArticles(prev =>
-      prev.map(a => (a.id === updated.id ? { ...a, ...updated } : a))
-    );
-  }, []);
+  const article = articles[currentIndex]
 
-  const handleArticleRemove = useCallback((id: string) => {
-    setArticles(prev => prev.filter(a => a.id !== id));
-  }, []);
+  async function handleSave() {
+    if (!article) return
+    animate('right', () => {})
+    await fetch(`/api/articles/${article.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_saved: true, is_read: true }),
+    })
+  }
 
-  const handleAddArticle = useCallback((article: Article) => {
-    setArticles(prev => [article, ...prev]);
-    setShowAddModal(false);
-  }, []);
+  async function handleArchive() {
+    if (!article) return
+    animate('left', () => {})
+    await fetch(`/api/articles/${article.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_archived: true, is_read: true }),
+    })
+  }
+
+  function handleSkip() {
+    if (!article) return
+    animate('down', () => {})
+    fetch(`/api/articles/${article.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_read: true }),
+    })
+  }
+
+  function handleUpdate(updated: Article) {
+    setArticles(prev => prev.map(a => a.id === updated.id ? updated : a))
+  }
+
+  function handleAddArticle(added: Article) {
+    setArticles(prev => [added, ...prev])
+    setCurrentIndex(0)
+    setShowAddModal(false)
+  }
+
+  const total = articles.length
+  const remaining = total - currentIndex
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16">
+        <div
+          className="w-full max-w-xl rounded-xl p-5 animate-pulse"
+          style={{ backgroundColor: '#1a1d27', border: '1px solid #2a2d3a', height: '320px' }}
+        />
+      </div>
+    )
+  }
+
+  if (!article) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center gap-4">
+        <p className="text-2xl font-semibold text-gray-300">All caught up!</p>
+        <p className="text-sm text-gray-600">No more articles in your feed.</p>
+        <div className="flex gap-3 mt-2">
+          <button
+            onClick={fetchArticles}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{ backgroundColor: '#4f8ef7', color: '#fff' }}
+          >
+            Refresh Feed
+          </button>
+          <Link
+            href="/saved"
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-white/5"
+            style={{ border: '1px solid #2a2d3a', color: '#94a3b8' }}
+          >
+            View Saved →
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold text-[#e2e8f0]">Feed</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-sm font-medium text-gray-500">
+          {remaining} article{remaining !== 1 ? 's' : ''} remaining
+        </h1>
         <button
           onClick={() => setShowAddModal(true)}
-          className="text-sm px-3 py-1.5 bg-[#4f8ef7] text-white rounded-md hover:bg-[#3b7de8] transition-colors"
+          className="text-sm px-3 py-1.5 rounded-md transition-colors"
+          style={{ backgroundColor: '#4f8ef7', color: '#fff' }}
         >
           + Add URL
         </button>
       </div>
 
-      <FeedFiltersBar
-        filters={filters}
-        onChange={setFilters}
-        sources={sources}
+      <SwipeCard
+        article={article}
         tags={tags}
+        position={{ current: currentIndex + 1, total }}
+        exitDir={exitDir}
+        onSave={handleSave}
+        onArchive={handleArchive}
+        onSkip={handleSkip}
+        onTagsChange={fetchTags}
+        onUpdate={handleUpdate}
       />
-
-      {loading ? (
-        <div className="flex flex-col gap-3 mt-4">
-          {[...Array(5)].map((_, i) => (
-            <div
-              key={i}
-              className="bg-[#1a1d27] rounded-xl p-4 animate-pulse"
-              style={{ height: '120px' }}
-            />
-          ))}
-        </div>
-      ) : articles.length === 0 ? (
-        <div className="text-center py-16 text-[#6b7280]">
-          <p className="text-lg font-medium text-[#94a3b8]">No articles found</p>
-          <p className="text-sm mt-1">
-            {Object.values(filters).some(v => v)
-              ? 'Try adjusting your filters'
-              : 'Click "Refresh Feed" in the navbar to fetch articles'}
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3 mt-4">
-          {articles.map(article => (
-            <FeedCard
-              key={article.id}
-              article={article}
-              tags={tags}
-              onUpdate={handleArticleUpdate}
-              onRemove={handleArticleRemove}
-              onTagsChange={fetchTags}
-            />
-          ))}
-        </div>
-      )}
 
       {showAddModal && (
         <AddURLModal
@@ -143,5 +172,5 @@ export default function HomePage() {
         />
       )}
     </div>
-  );
+  )
 }

@@ -46,3 +46,23 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@keyframes slideOutLeft {
+  to { transform: translateX(-120%) rotate(-8deg); opacity: 0; }
+}
+@keyframes slideOutRight {
+  to { transform: translateX(120%) rotate(8deg); opacity: 0; }
+}
+@keyframes slideOutDown {
+  to { transform: translateY(40px); opacity: 0; }
+}
+.animate-slide-left  { animation: slideOutLeft  280ms ease-in forwards; }
+.animate-slide-right { animation: slideOutRight 280ms ease-in forwards; }
+.animate-slide-down  { animation: slideOutDown  200ms ease-in forwards; }
