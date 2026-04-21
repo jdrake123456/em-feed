@@ -39,8 +39,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'name, url, and type are required' }, { status: 400 });
   }
 
-  if (!['blog', 'journal'].includes(type)) {
-    return NextResponse.json({ error: 'type must be blog or journal' }, { status: 400 });
+  if (!['blog', 'journal', 'podcast', 'other'].includes(type)) {
+    return NextResponse.json({ error: 'type must be blog, journal, podcast, or other' }, { status: 400 });
   }
 
   const { data, error } = await supabase

@@ -62,6 +62,8 @@ export default function FeedFilters({ filters, onChange, sources, tags }: FeedFi
         <option value="">All types</option>
         <option value="blog">Blog</option>
         <option value="journal">Journal</option>
+        <option value="podcast">Podcast</option>
+        <option value="other">Other</option>
         <option value="manual">Manual</option>
       </select>
 

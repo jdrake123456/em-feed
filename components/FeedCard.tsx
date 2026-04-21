@@ -54,6 +54,8 @@ export default function FeedCard({ article, tags, onUpdate, onRemove, onTagsChan
     blog: '#4f8ef7',
     journal: '#a855f7',
     manual: '#f97316',
+    podcast: '#10b981',
+    other: '#6b7280',
   }
 
   return (

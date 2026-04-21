@@ -27,7 +27,7 @@ export interface Source {
   id: string
   name: string
   url: string
-  type: 'blog' | 'journal'
+  type: 'blog' | 'journal' | 'podcast' | 'other'
   is_active: boolean
   last_fetched_at: string | null
   created_at: string
@@ -36,7 +36,7 @@ export interface Source {
 export interface ArticleFilters {
   source?: string
   tag?: string
-  type?: 'blog' | 'journal' | 'manual' | ''
+  type?: 'blog' | 'journal' | 'podcast' | 'other' | 'manual' | ''
   saved?: boolean
   search?: string
 }

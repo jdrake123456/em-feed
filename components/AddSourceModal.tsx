@@ -12,7 +12,7 @@ interface AddSourceModalProps {
 export default function AddSourceModal({ onClose, onAdded }: AddSourceModalProps) {
   const [name, setName] = useState('')
   const [url, setUrl] = useState('')
-  const [type, setType] = useState<'blog' | 'journal'>('blog')
+  const [type, setType] = useState<'blog' | 'journal' | 'podcast' | 'other'>('blog')
   const [loading, setLoading] = useState(false)
   const backdropRef = useRef<HTMLDivElement>(null)
 
@@ -95,7 +95,7 @@ export default function AddSourceModal({ onClose, onAdded }: AddSourceModalProps
             style={inputStyle}
           />
           <div className="flex gap-2">
-            {(['blog', 'journal'] as const).map((t) => (
+            {(['blog', 'journal', 'podcast', 'other'] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => setType(t)}

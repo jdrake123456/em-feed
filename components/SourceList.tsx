@@ -53,7 +53,7 @@ export default function SourceList({ sources, onUpdate, onDelete }: SourceListPr
     } catch { return 'Unknown' }
   }
 
-  const typeColor = { blog: '#4f8ef7', journal: '#a855f7' }
+  const typeColor: Record<string, string> = { blog: '#4f8ef7', journal: '#a855f7', podcast: '#10b981', other: '#6b7280' }
 
   return (
     <div className="space-y-2">
