@@ -6,7 +6,7 @@ CREATE TABLE articles (
   title TEXT NOT NULL,
   url TEXT UNIQUE NOT NULL,
   source_name TEXT NOT NULL,
-  source_type TEXT NOT NULL CHECK (source_type IN ('blog', 'journal', 'manual')),
+  source_type TEXT NOT NULL CHECK (source_type IN ('blog', 'journal', 'manual', 'podcast', 'other')),
   published_at TIMESTAMPTZ,
   description TEXT,
   summary TEXT,
@@ -38,7 +38,7 @@ CREATE TABLE sources (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   url TEXT UNIQUE NOT NULL,
-  type TEXT NOT NULL CHECK (type IN ('blog', 'journal')),
+  type TEXT NOT NULL CHECK (type IN ('blog', 'journal', 'podcast', 'other')),
   is_active BOOLEAN DEFAULT TRUE,
   last_fetched_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
