@@ -15,7 +15,7 @@ export default function Navbar() {
       const res = await fetch('/api/refresh', { method: 'POST' })
       const data = await res.json()
       if (res.ok) {
-        toast.success(`Feed refreshed — ${data.newArticles} new articles`)
+        toast.success(`Feed refreshed — ${data.newCount} new articles`)
       } else {
         toast.error('Refresh failed')
       }

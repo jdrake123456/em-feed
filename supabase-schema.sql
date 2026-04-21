@@ -62,3 +62,16 @@ CREATE INDEX idx_articles_published_at ON articles(published_at DESC);
 CREATE INDEX idx_articles_is_saved ON articles(is_saved) WHERE is_saved = TRUE;
 CREATE INDEX idx_articles_is_archived ON articles(is_archived);
 CREATE INDEX idx_articles_source_name ON articles(source_name);
+
+-- Row Level Security
+-- Enables RLS on all tables (blocks direct anon API access by default),
+-- then grants full access so the app works. Tighten when auth is added.
+ALTER TABLE articles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sources ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tags ENABLE ROW LEVEL SECURITY;
+ALTER TABLE article_tags ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "anon full access" ON articles FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "anon full access" ON sources FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "anon full access" ON tags FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "anon full access" ON article_tags FOR ALL USING (true) WITH CHECK (true);

@@ -37,8 +37,13 @@ export async function fetchFeed(source: Source): Promise<ParsedItem[]> {
 // Alias used by refresh route
 export const fetchFeedItems = fetchFeed
 
+const PRIVATE_IP_RE = /^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|127\.|169\.254\.)/
+
 export async function fetchMetaFromUrl(url: string): Promise<{ title: string | null; description: string | null }> {
   try {
+    const parsed = new URL(url)
+    if (!['http:', 'https:'].includes(parsed.protocol)) return { title: null, description: null }
+    if (PRIVATE_IP_RE.test(parsed.hostname)) return { title: null, description: null }
     const res = await fetch(url, {
       headers: { 'User-Agent': 'EMFeed/1.0' },
       signal: AbortSignal.timeout(8000),

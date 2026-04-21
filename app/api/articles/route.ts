@@ -73,6 +73,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'URL is required' }, { status: 400 });
   }
 
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(url);
+    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+      return NextResponse.json({ error: 'URL must use http or https' }, { status: 400 });
+    }
+  } catch {
+    return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
+  }
+
   let title = providedTitle;
   let description: string | null = null;
 
@@ -82,7 +92,7 @@ export async function POST(request: NextRequest) {
     description = meta.description;
   }
 
-  const source_name = providedSourceName || new URL(url).hostname.replace('www.', '');
+  const source_name = providedSourceName || parsedUrl.hostname.replace('www.', '');
 
   const { data, error } = await supabase
     .from('articles')
