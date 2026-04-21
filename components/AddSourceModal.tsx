@@ -35,7 +35,7 @@ export default function AddSourceModal({ onClose, onAdded }: AddSourceModalProps
       })
       const data = await res.json()
       if (res.ok) {
-        onAdded(data)
+        onAdded(data.source)
         toast.success('Source added')
         onClose()
       } else {

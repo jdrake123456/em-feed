@@ -29,36 +29,17 @@ export default function SourcesPage() {
     fetchSources();
   }, [fetchSources]);
 
-  const handleToggle = useCallback(async (source: Source) => {
-    try {
-      const res = await fetch(`/api/sources/${source.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: !source.is_active }),
-      });
-      if (!res.ok) throw new Error('Failed to update source');
-      const data = await res.json();
-      setSources(prev => prev.map(s => (s.id === source.id ? data.source : s)));
-    } catch {
-      toast.error('Failed to update source');
-    }
+  const handleUpdate = useCallback((id: string, changes: Partial<Source>) => {
+    setSources(prev => prev.map(s => (s.id === id ? { ...s, ...changes } : s)));
   }, []);
 
-  const handleDelete = useCallback(async (sourceId: string) => {
-    try {
-      const res = await fetch(`/api/sources/${sourceId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete source');
-      setSources(prev => prev.filter(s => s.id !== sourceId));
-      toast.success('Source removed');
-    } catch {
-      toast.error('Failed to remove source');
-    }
+  const handleDelete = useCallback((id: string) => {
+    setSources(prev => prev.filter(s => s.id !== id));
   }, []);
 
   const handleAddSource = useCallback((source: Source) => {
     setSources(prev => [...prev, source]);
     setShowAddModal(false);
-    toast.success('Source added');
   }, []);
 
   return (
@@ -82,7 +63,7 @@ export default function SourcesPage() {
       ) : (
         <SourceList
           sources={sources}
-          onToggle={handleToggle}
+          onUpdate={handleUpdate}
           onDelete={handleDelete}
         />
       )}
@@ -90,7 +71,7 @@ export default function SourcesPage() {
       {showAddModal && (
         <AddSourceModal
           onClose={() => setShowAddModal(false)}
-          onAdd={handleAddSource}
+          onAdded={handleAddSource}
         />
       )}
     </div>

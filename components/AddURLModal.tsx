@@ -36,7 +36,7 @@ export default function AddURLModal({ onClose, onAdded }: AddURLModalProps) {
       })
       const data = await res.json()
       if (res.ok) {
-        onAdded(data)
+        onAdded(data.article)
         toast.success('Article added')
         onClose()
       } else {

@@ -139,7 +139,7 @@ export default function HomePage() {
       {showAddModal && (
         <AddURLModal
           onClose={() => setShowAddModal(false)}
-          onAdd={handleAddArticle}
+          onAdded={handleAddArticle}
         />
       )}
     </div>
